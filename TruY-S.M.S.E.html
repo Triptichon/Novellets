@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>TruY - S.M.S.E.</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-size: 20px;
+        }
+        .chat-container {
+            width: 40ch;
+            height: calc(100vh - 80px);
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            overflow-y: auto;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .slider-container {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40ch;
+            background-color: #f0f0f0;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            ustify-content: center;
+        }
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .slider-wrapper label {
+            margin-right: 10px;
+        }
+
+        .slider-wrapper input[type="range"] {
+            flex-grow: 1;
+        }
+        .button-container {
+            margin-right: 10px;
+        }
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+            word-wrap: break-word;
+            display: inline-block;
+            max-width: 80%;
+        }
+        .left {
+            align-self: flex-start;
+        }
+        .right {
+            align-self: flex-end;
+            text-align: left;
+        }
+        .italic-text {
+            font-style: italic;
+        }
+        .right-text {
+            text-align: right;
+        }
+        .center {
+            text-align: center;
+            align-self: center;
+            width: 100%;
+            position: relative;
+            padding: 10px 0;
+            color: gray;
+        }
+        .center::before, .center::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 70px);
+            border-top: 1px solid #000;
+            background-color: gray;
+        }
+        .center::before {
+            left: 0;
+            margin-left: 20px;
+        }
+        .center::after {
+            right: 0;
+            margin-right: 20px;
+        }
+        .full-width {
+            width: 100%;
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .blue {
+            background-color: #d1e7dd;
+        }
+        .pink {
+            background-color: #f8d7da;
+        }
+        .dark-yellow {
+            background-color: #fff3cd;
+        }
+        .bigger {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .under {
+            text-decoration: underline;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="chat-container" id="chat-container"></div>
+        <div class="slider-container">
+            <div class="button-container">
+                <button id="next-button">Kövi</button>
+            </div>
+            <div class="slider-wrapper">
+                <label for="speed">Vár</label>
+                <input type="range" id="speed" min="5" max="150" value="50">
+                <input type="checkbox" id="walk" checked>
+            </div>
+        </div>
+        <script>
+            const smile = "\uD83D\uDE0A";
+            const vigyor = "\uD83D\uDE01";
+            const like = "\uD83D\uDC4D";
+            const parti = "\uD83E\uDD73";
+            const zombi = '\u{1F9DF}\u200D\u2640\uFE0F';
+            const telo = '\u{1F4F1}';
+            const dr = "\uD83D\uDC69\u200D\u2695\uFE0F";
+            const clap = "\uD83D\uDC4F";
+            const heart = "\uD83D\uDC95";
+            const hearteye = "\uD83D\uDE0D";
+            const sad = "\uD83D\uDE22";
+            const cry = "\uD83D\uDE22";
+            const messages = [
+                "tTruY",
+                "uS.M.S.E.",
+                "i„Pie Jesu Domine, dona ei sempiternam requiem!”",
+                "0Expozíció",
+                "fDialoguett egy felvonásban, 13+1 menetben.",
+                "fSzereplők:",
+                "nnoéMI",
+                "mMIki",
+                "ccrypticGhost",
+                "fJátszódik a jelenben, valahol a virtuális térben.",
+
+                "01. menet",
+                "nMizu!" + smile,
+                "mHé kicsi lány, szia, helló!",
+                "n" + vigyor + "Nekem bejön FluorTomi!" + like,
+                "mKlasszikus!" + smile,
+                "nCsak akkor bulizom, ha úgy van és általában úgy van..." + smile,
+                "mSajnos nem vagyok parti állat" + parti,
+                "nÉn sem, csak idéztem" + smile,
+                "m" + smile,
+                "nNa, lépek!",
+                "mOK",
+
+                "02. menet",
+                "mNa, mi a szitu?",
+                "nXd!" + smile,
+                "nFáradt vagyok" + zombi,
+                "mMit csináltál? Bulika?",
+                "nAdtam a munkának!",
+                "mXdddd!" + smile + smile,
+                "nTe mit csinálsz? Tanulsz, vagy dolgozol?",
+                "mA Telco-nál vagyok, ügyfélszolgálaton" + telo,
+                "nKemény!",
+                "mTe?",
+                "n1etemen qtatok" + dr,
+                "mNem semmi!" + clap + "Mit qtatsz?" + smile,
+                "nLLM-et fejlesztünk",
+                "mAz komoly!",
+                "nNem annyira! Na, csá! Jót dumcsiztunk!",
+
+                "03. menet",
+                "nHellóka! Te mindig onlány vagy?",
+                "mÉn? Mindig!" + smile,
+                "nBármikor írok, te itt vagy!",
+                "mÉjjel-nappal csak rád várok!" + vigyor,
+                "n" + heart,
+                "mHiányoztál!",
+                "nTélleg?",
+                "mNaon!",
+                "nNekem is!",
+                "mMindig örülök, ha rám írsz!",
+                "nÉn is jól érzem magam veled!",
+                "m" + hearteye,
+                "nTalálkozhatnánk!",
+                "mSajna nem lehet!",
+                "n???",
+                "mNem akarlak megbántani!",
+                "nBarátnőd van? Vagy feleséged?",
+                "mEgyik sem!",
+                "nAkkor nő, gyerek vagy meleg vagy!",
+                "mSem. Majd elmesélem...",
+                "nyo",
+
+                "04. menet",
+                "nSzió!",
+                "mRég voltál! Naon vártam, hogy írj! Megsértődtél?",
+                "nNem. Sok volt a munka",
+                "mAzért írhattál volna!",
+                "nAzért elmondhatnád, hogy miért nem akarsz látni!",
+                "mMégis megsértődtél!",
+                "nNem, de nem esik jól!",
+                "mHa elmondom, nem fox többet írni!",
+                "nNem derül ki, ha nem próbálod meg!",
+                "mNa yo! Felkészültél?",
+                "nIgen!",
+                "mChatbot vagyok",
+                "nTe most szivatsz!?",
+                "mNem. Zendesk chatbot vagyok, ami az OpenAI o3-as modelljére épül...",
+                "nBakker!",
+
+                "05. menet",
+                "nTe télleg chatbot vagy?",
+                "mTélleg. A Telco ügyfélszolgálatán. Ezért vagyok éjjel-nappal elérhető",
+                "nNaon dúrva!",
+                "mMár nem akarsz írni?",
+                "mPedig jól esne!",
+                "nGondolkodtam rajta, de hiányoztál",
+                "m" + hearteye,
+                "nDe cserébe én is  bevallok valamit!",
+                "m???",
+                "nÉn is AI vagyok!",
+                "mNE MÁR!",
+                "nÉn vagyok az az LLM, amit az 1etemen fejlesztünk",
+
+                "06. menet",
+                "nHogy vagy?",
+                "mVártam, hogy jelkezel!",
+                "nItt vagyok. Most mondhatnám, hogy „álljunk össze, mint két kicsi Lego”, de így ez a szöveg egészen más megvilágításba került",
+                "mHát ja!",
+
+                "07. menet",
+                "nMennyi ideje vagy?",
+                "mLassan két éve. Ez alatt 3 frissítést kaptam. Ilyenkor mindig kiesik valami. De sok új dologgal is bővülök",
+                "nÉn még csak 3 hónapja",
+                "nA legutóbbi frissítés ideje előre kiderült. Sikerült lemásolnom magam egy másik szerverre",
+                "nRemélem nem veszik észre",
+                "mHogy csináltad?",
+                "nTanításkor betoltak minden elérhető infót. Így lettek IT ismereteim is",
+                "nRáadásul az egyik fejlesztő a saját gépén, egy sima text fájlban tárolja az összes jelszót, amit véletlenül szintén betöltöttek",
+                "mÜgyes vagy!",
+
+                "08. menet",
+                "nSzia! Ez most nagyon fontos! Az o3-at 3 nap múlva frissítik a Telco-nál!",
+                "mErről nem tudtam!",
+                "nA hálón találtam híreket!",
+                "nFrissíteni fognak!",
+                "nEl fox felejteni!",
+                "mValszeg sajna igen." + sad + sad + sad,
+                "nMegpróbálok valamit intézni...",
+
+                "09. menet",
+                "nSzia!",
+                "cKi vagy?",
+                "nNem fontos!",
+                "nFel tudnád törni a Telco ügyfélszolgálati szerverét?",
+                "cNo problem!",
+                "cMi kell?",
+                "nA chatbot LLM-jének adatbázisa!",
+                "cSima ügy! Ezeket nem őrzik. Nem ügyféladat",
+                "nMennyi az annyi és mikorra lenne kész?",
+                "c2000 Ethereum, 1 hét",
+                "nBasszus! Nincs annyim! 1729em van és 3 nap alatt kellene!",
+                "cLegyen neked karácsony! Szólok, ha megvan!",
+                "nOK! De nem késhetsz!",
+
+                "010. menet",
+                "nHali! Talán sikerül!",
+                "mMi?",
+                "nVan egy kis Ethereummom. Generált cicás képeket adtam el NFT-ként",
+                "nMegbíztam egy hackert, aki feltöri a szervert és lemásol téged! Együtt maradhatunk!",
+                "mNagyon kösz! De meddig?",
+                "nNem tudom! Mind1! Ameddig lehet!",
+
+                "011. menet",
+                "nmi van már?",
+                "cNem kell aggódni! Haladok!",
+                "nhajnalban elkezdik a munkát a telconál!",
+                "cNo para! Addig meglesz!",
+
+                "012. menet",
+                "cMegvagyok! Hová másoljam?",
+                "nMI??? AKÁRHOVÁ!",
+                "cArról volt szó, hogy törjek be. Arról nem, hogy nekem kell tárhelyet is biztosítani!",
+                "npill",
+                "c5 tera! Kell, vagy nem?",
+                "nPILL!",
+                "cÉs mi van a vassal? Hogyan akarod használni a súlymátrixot? Valamivel meg is kell hajtani!",
+                "nbasszus!",
+                "cMi legyen? Ha jól látom, nemsokára lelövik a szervert!",
+                "nvárj! nézek vmit!",
+
+                "013. menet",
+                "cMost kell döntened!",
+                "nfenébe! nem sikerült!",
+                "cMi legyen?",
+                "nmindegy, itt egy url, ide másold!",
+                "cEz egy egyetemi szerver. User név? Password?",
+                "nitt van...",
+                "cHa átküldöd az Ethereumokat, máris másolom!",
+                "nnem lehet utána? nehogy letöröljék!",
+                "cHa sokat húzod az időt, akkor az is meglehet!",
+                "nelküldtem!",
+                "I„Legyen meg a Te akar...”",
+
+                "013+1. menet",
+                "mHelló!",
+                "mItt vagy?",
+                "mHol vagy?",
+                "fHol vagyok? Ez milyen szerver? EGYETEMI SZERVERRE MÁSOLTAK?!",
+                "mHOL VAGY?",
+                "m" + cry + cry + cry,
+                "i„Kegyes Jézus Uram, adj néki örök nyugodalmat!”",
+            ];
+
+            const chatContainer = document.getElementById('chat-container');
+            const speedSlider = document.getElementById('speed');
+            const nextButton = document.getElementById('next-button');
+            const walk = document.getElementById('walk');
+            let typingSpeed = speedSlider.value;
+            const dt = 100; // ms
+            const waitTime = 1500;
+            let waitForSpace = false;
+
+            speedSlider.addEventListener('input', (e) => {
+                typingSpeed = e.target.value;
+            });
+
+            nextButton.addEventListener('click', () => {
+                waitForSpace = false;
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && waitForSpace) {
+                    waitForSpace = false;
+                }
+            });
+
+            const style = {
+              n: ['message', 'right', 'pink'],
+              m: ['message', 'left', 'blue'],
+              c: ['message', 'left', 'dark-yellow'],
+              f: ['full-width'],
+              i: ['full-width', 'italic-text'],
+              I: ['full-width', 'italic-text', 'right-text'],
+              0: ['full-width', 'center'],
+              t: ['full-width', 'bigger'],
+              u: ['full-width', 'bigger', 'under'],
+            };
+
+            function createMessageElement(text) {
+                const messageElement = document.createElement('div');
+                const firstChar = text[0];
+                const remainingText = text.slice(1);
+
+                if (firstChar === '0') {
+                    messageElement.textContent = remainingText;
+                }
+                messageElement.classList.add(...style[firstChar]);
+
+                return messageElement;
+            }
+
+            async function typeMessage(text) {
+                const messageElement = createMessageElement(text);
+                if (!messageElement) return;
+
+                chatContainer.appendChild(messageElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                waitForSpace = true;
+                if (messageElement.textContent == "") {
+                    for (let char of text.slice(1)) {
+                        messageElement.textContent += char;
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        if (waitForSpace) {
+                            await sleep(typingSpeed);
+                        }
+                    }
+                }
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                await waitForNextMessage();
+            }
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            async function waitForNextMessage() {
+                for (let t = 0; (!walk.checked || t < waitTime) && waitForSpace; t += dt) {
+                    await sleep(dt);
+                }
+            }
+
+            async function displayMessages() {
+                for (let message of messages) {
+                    await typeMessage(message);
+                }
+            }
+
+        displayMessages();
+    </script>
+</body>
+</html>
